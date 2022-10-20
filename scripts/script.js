@@ -5,21 +5,41 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 // get audio from user
 document.getElementById('file').addEventListener('change', function(event){
-
-    // consolePrint('change on input#file triggered');
     if (!this.files.length) return;
     var file = this.files[0];
-    // fileURL = blob.createObjectURL(file);
     const urlObj = URL.createObjectURL(file);
-    //console.log(file);
-    // console.log('File name: '+file.name);
-    // console.log('File type: '+file.type);
-    // console.log('File BlobURL: '+ fileURL);
-    document.getElementById('audio').addEventListener("load", () => {
+    const audio1 = document.getElementById('audio')
+    audio1.addEventListener("load", () => {
         URL.revokeObjectURL(urlObj);
       });
-    document.getElementById('audio').src = urlObj;
-
+    audio1.src = urlObj;
+    const audioContext = new AudioContext();
+    audioSource = audioContext.createMediaElementSource(audio1);
+    analyser = audioContext.createAnalyser();
+    audioSource.connect(analyser);
+    analyser.connect(audioContext.destination);
+    analyser.fftSize = 64;
+    const BufferLength = analyser.frequencyBinCount;
+    const bufferArray = new Uint8Array(BufferLength);
+    const barWidth = canvas.width/BufferLength;
+    let barHeight;
+    let x;
+    function animate() {
+       x = 0;
+    
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      analyser.getByteFrequencyData(bufferArray);
+      for (var i = 0; i < BufferLength; i++) {
+        barHeight= bufferArray[i]*2;
+        ctx.fillStyle= generateRandomColor();
+        ctx.fillRect(x,canvas.height-barHeight,barWidth,barHeight)
+        x += barWidth;
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+    
+    
 });
 
 // classes for vis
@@ -47,4 +67,13 @@ function animate(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
     requestAnimationFrame(animate);
+}
+
+function generateRandomColor(){
+    let maxVal = 0xFFFFFF; // 16777215
+    let randomNumber = Math.random() * maxVal; 
+    randomNumber = Math.floor(randomNumber);
+    randomNumber = randomNumber.toString(16);
+    let randColor = randomNumber.padStart(6, 0);   
+    return `#${randColor.toUpperCase()}`
 }

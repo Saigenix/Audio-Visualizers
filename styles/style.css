@@ -7,8 +7,22 @@
 }
 body {
     overflow: hidden;
+     background-color: #937DC2;
 }
 #canvas1{
     position: absolute;
-    background-color: black;
+    background-color: #937DC2;
+}
+#audioSection{
+  padding: 20px;
+  display:grid;
+  align-items: center;
+  justify-content: center;
+}
+#audio{
+  
+  margin: 10px;
+}
+#file {
+  font-size: 15px;
 }
